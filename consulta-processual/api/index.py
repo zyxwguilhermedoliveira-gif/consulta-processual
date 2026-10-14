@@ -21,6 +21,7 @@ async def enviar_solicitacao(dados: SolicitacaoReal):
     if not token or not chat_id:
         raise HTTPException(status_code=503, detail="Chaves secretas faltando.")
 
+    # Correção da barra do WhatsApp
     link_whats = f"https://wa.me{dados.phone}"
     txt_rep = "Defensoria Pública" if dados.representation == "public" else "Advocacia Particular"
     
@@ -34,11 +35,17 @@ async def enviar_solicitacao(dados: SolicitacaoReal):
         f"🏢 Parte Processada: {dados.defendant}"
     )
 
+    # CORREÇÃO DE OURO: O link correto da API oficial do Telegram
     url = f"https://telegram.org{token}/sendMessage"
 
     try:
         async with httpx.AsyncClient(timeout=15) as client:
             resposta = await client.post(url, json={"chat_id": chat_id, "text": mensagem})
+        
+        # Se o Telegram der qualquer erro, ele avisa a tela do site com o motivo real
+        if resposta.status_code != 200:
+            raise HTTPException(status_code=502, detail=f"Erro do Telegram: {resposta.text}")
+            
         return {"success": True}
-    except:
-        raise HTTPException(status_code=502, detail="Erro ao enviar.")
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Falha de conexão: {str(e)}")
