@@ -4,7 +4,7 @@
  * CONFIGURAÇÃO GLOBAL DO PROJETO
  */
 const PROJETO_CONFIG = Object.freeze({
-  BRAND_NAME: 'Consulta Processual',
+  BRAND_NAME: '',
   BRAND_LOGO_URL: 'logo.png', 
   API_KEY: '9b23516708923d8753c16b2d4fd3c4b7488f4672ed2b74e5bb83596ff8106b6c',
   MIN_LOADING_MS: 2000 
