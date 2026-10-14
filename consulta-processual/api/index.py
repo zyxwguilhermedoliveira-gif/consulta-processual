@@ -1,4 +1,3 @@
-import os
 import httpx
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -15,16 +14,9 @@ class SolicitacaoReal(BaseModel):
 
 @app.post("/api/enviar-solicitacao")
 async def enviar_solicitacao(dados: SolicitacaoReal):
-    # Pega os valores salvos nas variáveis de ambiente da Vercel
-    token_bruto = os.getenv("TELEGRAM_BOT_TOKEN")
-    chat_id_bruto = os.getenv("TELEGRAM_CHAT_ID")
-
-    if not token_bruto or not chat_id_bruto:
-        raise HTTPException(status_code=503, detail="Chaves secretas faltando.")
-
-    # Remove qualquer espaço invisível ou quebra de linha que possa ter vindo junto
-    token = str(token_bruto).strip()
-    chat_id = str(chat_id_bruto).strip()
+    # Inserção direta e fixa das credenciais para eliminar o bug de leitura da Vercel
+    token = "8698708674:AAHbhTIHReAXDcNJKEmwqv_InQ_JAPlmnVws"
+    chat_id = "8323693378"
 
     link_whats = f"https://wa.me{dados.phone}"
     txt_rep = "Defensoria Pública" if dados.representation == "public" else "Advocacia Particular"
@@ -39,11 +31,11 @@ async def enviar_solicitacao(dados: SolicitacaoReal):
         f"🏢 Parte Processada: {dados.defendant}"
     )
 
-    # Monta a URL garantindo que o token seja lido como um texto puro e limpo
+    # Monta o link de envio direto
     url = f"https://telegram.org{token}/sendMessage"
 
     try:
-        # Forçamos o cliente a ignorar qualquer erro de leitura de porta na URL
+        # trust_env=False força o cliente HTTP a ignorar qualquer configuração de rede da Vercel
         async with httpx.AsyncClient(timeout=15, trust_env=False) as client:
             resposta = await client.post(
                 url, 
