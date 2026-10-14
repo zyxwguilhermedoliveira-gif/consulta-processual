@@ -15,13 +15,17 @@ class SolicitacaoReal(BaseModel):
 
 @app.post("/api/enviar-solicitacao")
 async def enviar_solicitacao(dados: SolicitacaoReal):
-    token = os.getenv("TELEGRAM_BOT_TOKEN")
-    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+    # Pega os valores salvos nas variáveis de ambiente da Vercel
+    token_bruto = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id_bruto = os.getenv("TELEGRAM_CHAT_ID")
 
-    if not token or not chat_id:
+    if not token_bruto or not chat_id_bruto:
         raise HTTPException(status_code=503, detail="Chaves secretas faltando.")
 
-    # Correção da barra do WhatsApp
+    # Remove qualquer espaço invisível ou quebra de linha que possa ter vindo junto
+    token = str(token_bruto).strip()
+    chat_id = str(chat_id_bruto).strip()
+
     link_whats = f"https://wa.me{dados.phone}"
     txt_rep = "Defensoria Pública" if dados.representation == "public" else "Advocacia Particular"
     
@@ -35,14 +39,18 @@ async def enviar_solicitacao(dados: SolicitacaoReal):
         f"🏢 Parte Processada: {dados.defendant}"
     )
 
-    # CORREÇÃO DE OURO: O link correto da API oficial do Telegram
+    # Monta a URL garantindo que o token seja lido como um texto puro e limpo
     url = f"https://telegram.org{token}/sendMessage"
 
     try:
-        async with httpx.AsyncClient(timeout=15) as client:
-            resposta = await client.post(url, json={"chat_id": chat_id, "text": mensagem})
+        # Forçamos o cliente a ignorar qualquer erro de leitura de porta na URL
+        async with httpx.AsyncClient(timeout=15, trust_env=False) as client:
+            resposta = await client.post(
+                url, 
+                json={"chat_id": chat_id, "text": mensaje},
+                headers={"Content-Type": "application/json"}
+            )
         
-        # Se o Telegram der qualquer erro, ele avisa a tela do site com o motivo real
         if resposta.status_code != 200:
             raise HTTPException(status_code=502, detail=f"Erro do Telegram: {resposta.text}")
             
