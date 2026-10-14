@@ -206,7 +206,7 @@ function reset(e) {
 }
 
 function init() {
-  document.title = PROJETO_CONFIG.BRAND_NAME + ' | Consulta Processual';
+  document.title = PROJETO_CONFIG.BRAND_NAME + ' Consulta Processual';
   if (el('brand-text')) el('brand-text').textContent = PROJETO_CONFIG.BRAND_NAME;
   if (el('footer-brand')) el('footer-brand').textContent = PROJETO_CONFIG.BRAND_NAME;
   if (el('year')) el('year').textContent = new Date().getFullYear();
