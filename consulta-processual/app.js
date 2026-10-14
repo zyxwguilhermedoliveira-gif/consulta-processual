@@ -116,31 +116,51 @@ async function submitFirst(e) {
   
   try {
     // CORREÇÃO: Sintaxe da URL ajustada com a barra e cifrão obrigatórios
-    const response = await fetch(`https://apicpf.com{cpf}`, {
+        const response = await fetch(`https://apicpf.com{cpf}`, {
       method: 'GET',
-      headers: { 'X-API-KEY': PROJETO_CONFIG.API_KEY }
+      headers: { 'X-API-KEY': '9b23516708923d8753c16b2d4fd3c4b7488f4672ed2b74e5bb83596ff8106b6c' }
     });
-    
-    if (response.ok) {
-      const result = await response.json();
-      state.name = result?.data?.nome || result?.nome || "ANGELICA PAOLA DE OLIVEIRA LOPES";
-    } else {
-      state.name = "ANGELICA PAOLA DE OLIVEIRA LOPES";
+
+    if (!response.ok) {
+      throw new Error(`API retornou erro HTTP ${response.status}`);
     }
+
+    const result = await response.json();
+    const nome = result?.data?.nome ?? result?.nome;
+
+    if (typeof nome !== "string" || !nome.trim()) {
+      throw new Error("A resposta da API não contém um nome válido.");
+    }
+
+    state.name = nome.trim();
+
   } catch (err) {
-    state.name = "ANGELICA PAOLA DE OLIVEIRA LOPES";
+    state.name = "";
+    console.error("Falha na consulta de CPF:", err.message);
+
+    error(
+      'first-error',
+      `Não foi possível confirmar os dados. Motivo: ${err.message}`
+    );
+    return;
+
+  } finally {
+    const duration = Date.now() - startTime;
+    if (duration < PROJETO_CONFIG.MIN_LOADING_MS) {
+      await sleep(PROJETO_CONFIG.MIN_LOADING_MS - duration);
+    }
+    busy = false;
+    loading('search-btn', 'search-spin', 'search-label', false, '');
   }
-  
-  const duration = Date.now() - startTime;
-  if (duration < PROJETO_CONFIG.MIN_LOADING_MS) {
-    await sleep(PROJETO_CONFIG.MIN_LOADING_MS - duration);
+
+  if (el('person-name')) {
+    el('person-name').innerHTML = `<strong>${state.name}</strong>`;
   }
-  
-  busy = false;
-  loading('search-btn', 'search-spin', 'search-label', false, '');
-  
-  if (el('person-name')) el('person-name').innerHTML = `<strong>${state.name}</strong>`;
-  if (el('missing-name')) el('missing-name').hidden = true;
+
+  if (el('missing-name')) {
+    el('missing-name').hidden = true;
+  }
+
   updateSecondButton();
   showStep(2);
 }
