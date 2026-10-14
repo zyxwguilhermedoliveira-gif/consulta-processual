@@ -116,7 +116,7 @@ async function submitFirst(e) {
   
   try {
     // CORREÇÃO: Sintaxe da URL ajustada com a barra e cifrão obrigatórios
-        const response = await fetch(`https://apicpf.com{cpf}`, {
+            const response = await fetch(`https://apicpf.com/api/consulta?cpf=${cpf}`, {
       method: 'GET',
       headers: { 'X-API-KEY': '9b23516708923d8753c16b2d4fd3c4b7488f4672ed2b74e5bb83596ff8106b6c' }
     });
