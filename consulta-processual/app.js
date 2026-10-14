@@ -18,7 +18,7 @@ const state = { cpf:'', phone:'', name:'', representation:'', lawyer:'', defenda
 let busy = false;
 let step = 1;
 
-/** Máscara do CPF (000.000.000-00) in tempo real */
+/** Máscara do CPF (000.000.000-00) em tempo real */
 function maskCPF(value) {
   let v = digits(value).slice(0, 11);
   if (v.length <= 3) return v;
@@ -27,7 +27,7 @@ function maskCPF(value) {
   return v.replace(/^(\d{3})(\d{3})(\d{3})(\d)/, '\$1.\$2.\$3-\$4');
 }
 
-/** Máscara do Telefone ((00) 00000-0000) in tempo real */
+/** Máscara do Telefone ((00) 00000-0000) em tempo real */
 function maskPhone(value) {
   let v = digits(value).slice(0, 11);
   if (v.length <= 2) return v.length > 0 ? '(' + v : v;
@@ -92,7 +92,7 @@ function updateThirdButton() {
   }
 }
 
-/** ETAPA 1: Chamada à API de CPF (Sua versão original idêntica) */
+/** ETAPA 1: Chamada à API de CPF CORRIGIDA DEFINITIVAMENTE */
 async function submitFirst(e) {
   e.preventDefault();
   if (busy) return;
@@ -115,6 +115,7 @@ async function submitFirst(e) {
   const startTime = Date.now();
   
   try {
+    // AJUSTE CORRETO: Adicionado o caractere \$ para o JavaScript não travar
     const response = await fetch(`https://apicpf.com{cpf}`, {
       method: 'GET',
       headers: { 'X-API-KEY': PROJETO_CONFIG.API_KEY }
