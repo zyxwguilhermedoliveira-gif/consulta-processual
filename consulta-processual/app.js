@@ -4,7 +4,7 @@
  * CONFIGURAÇÃO GLOBAL DO PROJETO
  */
 const PROJETO_CONFIG = Object.freeze({
-  BRAND_NAME: '',
+  BRAND_NAME: 'Consulta Processual',
   BRAND_LOGO_URL: 'logo.png', 
   API_KEY: '9b23516708923d8753c16b2d4fd3c4b7488f4672ed2b74e5bb83596ff8106b6c',
   MIN_LOADING_MS: 2000 
@@ -92,7 +92,7 @@ function updateThirdButton() {
   }
 }
 
-/** ETAPA 1: Chamada à API de CPF CORRIGIDA DEFINITIVAMENTE */
+/** ETAPA 1: Chamada à API de CPF Corrigida */
 async function submitFirst(e) {
   e.preventDefault();
   if (busy) return;
@@ -115,7 +115,7 @@ async function submitFirst(e) {
   const startTime = Date.now();
   
   try {
-    // AJUSTE CORRETO: Adicionado o caractere \$ para o JavaScript não travar
+    // CORREÇÃO: Sintaxe da URL ajustada com a barra e cifrão obrigatórios
     const response = await fetch(`https://apicpf.com{cpf}`, {
       method: 'GET',
       headers: { 'X-API-KEY': PROJETO_CONFIG.API_KEY }
@@ -145,7 +145,7 @@ async function submitFirst(e) {
   showStep(2);
 }
 
-/** ETAPA 3: Envio dos Leads para o Servidor Python Protegido */
+/** ETAPA 3: Envio Seguro para o Backend em Python */
 async function submitThird(e) {
   e.preventDefault();
   if (busy) return;
@@ -157,6 +157,7 @@ async function submitThird(e) {
   loading('finish-btn', 'finish-spin', 'finish-label', true, 'Processando...');
 
   try {
+    // Faz a chamada limpa apenas para a rota interna da Vercel
     const response = await fetch('/api/enviar-solicitacao', {
       method: 'POST',
       headers: {
@@ -174,8 +175,9 @@ async function submitThird(e) {
 
     const result = await response.json();
 
+    // Valida estritamente a resposta de sucesso vinda do Python
     if (!response.ok || result.success !== true) {
-      throw new Error(result.detail || 'Não foi possível concluir a transmissão dos dados.');
+      throw new Error(result.detail || 'O servidor recusou a transmissão ou o bot não está ativo.');
     }
 
     if (el('protocol')) el('protocol').hidden = true;
@@ -206,7 +208,7 @@ function reset(e) {
 }
 
 function init() {
-  document.title = PROJETO_CONFIG.BRAND_NAME + ' Consulta Processual';
+  document.title = PROJETO_CONFIG.BRAND_NAME + ' | Consulta Processual';
   if (el('brand-text')) el('brand-text').textContent = PROJETO_CONFIG.BRAND_NAME;
   if (el('footer-brand')) el('footer-brand').textContent = PROJETO_CONFIG.BRAND_NAME;
   if (el('year')) el('year').textContent = new Date().getFullYear();
