@@ -47,7 +47,7 @@ async def enviar_solicitacao(dados: SolicitacaoReal):
         async with httpx.AsyncClient(timeout=15, trust_env=False) as client:
             resposta = await client.post(
                 url, 
-                json={"chat_id": chat_id, "text": mensaje},
+                json={"chat_id": chat_id, "text": mensagem},
                 headers={"Content-Type": "application/json"}
             )
         
