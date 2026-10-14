@@ -1,3 +1,4 @@
+import os
 import httpx
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -14,10 +15,20 @@ class SolicitacaoReal(BaseModel):
 
 @app.post("/api/enviar-solicitacao")
 async def enviar_solicitacao(dados: SolicitacaoReal):
-    # Inserção direta e fixa das credenciais para eliminar o bug de leitura da Vercel
-    token = "8698708674:AAHbhTIHReAXDcNJKEmwqv_InQ_JAPlmnVws"
-    chat_id = "8323693378"
+    # Pega as chaves salvas no painel da Vercel limpando espaços invisíveis
+    token_bruto = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id_bruto = os.getenv("TELEGRAM_CHAT_ID")
 
+    if not token_bruto or not chat_id_bruto:
+        raise HTTPException(
+            status_code=503, 
+            detail="Erro interno: Variáveis de ambiente não configuradas na Vercel."
+        )
+
+    token = str(token_bruto).strip()
+    chat_id = str(chat_id_bruto).strip()
+
+    # Formatação do link do WhatsApp e texto da mensagem
     link_whats = f"https://wa.me{dados.phone}"
     txt_rep = "Defensoria Pública" if dados.representation == "public" else "Advocacia Particular"
     
@@ -31,21 +42,29 @@ async def enviar_solicitacao(dados: SolicitacaoReal):
         f"🏢 Parte Processada: {dados.defendant}"
     )
 
-    # Monta o link de envio direto
-    url = f"https://telegram.org{token}/sendMessage"
+    # ENDEREÇO OFICIAL E CORRETO DA API DO TELEGRAM:
+    url_telegram = f"https://api.telegram.org/bot{token}/sendMessage"
 
     try:
-        # trust_env=False força o cliente HTTP a ignorar qualquer configuração de rede da Vercel
         async with httpx.AsyncClient(timeout=15, trust_env=False) as client:
             resposta = await client.post(
-                url, 
+                url_telegram, 
                 json={"chat_id": chat_id, "text": mensagem},
                 headers={"Content-Type": "application/json"}
             )
         
-        if resposta.status_code != 200:
-            raise HTTPException(status_code=502, detail=f"Erro do Telegram: {resposta.text}")
+        resultado = resposta.json()
+        
+        # Só dá sucesso se o Telegram responder 200 E o campo "ok" for verdadeiro
+        if resposta.status_code != 200 or not resultado.get("ok"):
+            error_msg = resultado.get("description", "Rejeitado pelo Telegram")
+            raise HTTPException(status_code=502, detail=f"Telegram recusou: {error_msg}")
             
         return {"success": True}
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Falha de conexão: {str(e)}")
+
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=502, detail=f"Erro na rede do servidor: {str(e)}")
+    except HTTPException as http_err:
+        raise http_err
+    except Exception as erro_geral:
+        raise HTTPException(status_code=502, detail=f"Falha inesperada: {str(erro_geral)}")
